@@ -1,0 +1,16 @@
+---
+title: "Percentage of interviewees from sensitized communities"
+output: html_notebook
+---
+```{r}
+library(haven)
+exit <- read_dta("~/Desktop/IPA/Exit Survey/Exit_Survey_Jun27.dta")
+community <- as.data.frame(exit$community_name)
+
+## create a dummy variable indicating whether the caregiver is from a sensitized community
+sensitized_comm <- ifelse(exit$community_name==0|exit$community_name=="Other",0,1)
+table(sensitized_comm)
+
+pct_sensitized <-round(table(sensitized_comm)[2]/nrow(community),4)*100
+print(paste(pct_sensitized, "% of interviewees are from sensitized communities"))
+```

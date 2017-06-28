@@ -1,0 +1,27 @@
+---
+title: "Language breakdown"
+output: html_notebook
+---
+#used all data
+
+```{r}
+library(haven)
+library(ggplot2)
+library(labelled)
+exit <- read_dta("~/Desktop/IPA/Exit Survey/Exit_survey_Jun27.dta")
+lang <- exit$language
+table(lang)
+
+xlabels <- val_labels(lang) ##extract labels of languages
+
+## names(xlabels)
+
+ggplot(exit, aes(x=language))+ geom_bar(aes(y=(..count..)/sum(..count..))) + 
+  scale_x_discrete(limits=names(xlabels), labels=names(xlabels)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 12)) +
+  geom_text(aes(label = ..count.., y= ..prop..), stat= "count", vjust = -.1) +
+  ylab("Frequency") +
+  xlab("Preferred Language") +
+  ggtitle("Breakdown of Preferred Language")
+
+```

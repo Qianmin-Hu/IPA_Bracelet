@@ -1,0 +1,67 @@
+---
+title: "Age of children when interviewing"
+output: html_notebook
+---
+
+```{r}
+rm(list=ls())
+library(haven)
+library(lubridate)
+library(dplyr)
+library(ggplot2)
+library(scales)
+exit <- read_dta("~/Desktop/IPA/Exit Survey/Exit_Survey_Jun27.dta")
+exit$dob_1 <- dmy(exit$dob_new)
+exit$dob_2 <- ymd(exit$dob)
+
+
+exit$intv_date <- as_date(exit$starttime)
+newdata <- exit[c("dob_1","dob_2","intv_date")]
+start <- dmy("01/01/2016")
+
+newdata2 <- newdata[newdata$intv_date > start,] ##remove observations with interview time before 2016
+
+newdata2$date_of_birth <- if_else(is.na(newdata2$dob_1), newdata2$dob_2, newdata2$dob_1)
+
+newdata2$age <- newdata2$intv_date - newdata2$date_of_birth
+
+##remove observations with age<0 and missing data
+newdata2 <- newdata2[as.numeric(newdata2$age) > 0 & !is.na(newdata2$age),]
+
+age_in_months <- round(newdata2$age/30,3) ##age is recorded in days here
+summary(round(as.numeric(age_in_months),3))
+ggplot(as.data.frame(age_in_months), aes(..density..,x=age_in_months)) + geom_histogram(binwidth = 1, color = "white") + xlab("Child's age in months when caregiver was interviewed") + ylab("Frequency")
+```
+
+distribution of date of birth
+```{r}
+newdata2 %>%
+  ggplot(aes(date_of_birth)) +
+  geom_histogram(binwidth = 30,color = "white") + xlab("Date of Birth (by month)") +
+  scale_x_date(date_labels = ("%Y-%m"), date_breaks = "3 month") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 12)) 
+
+
+
+```
+
+```{r}
+library(nycflights13)
+flights %>% 
+  select(year, month, day, hour, minute)
+
+flights_dt <- flights %>% 
+  select(year, month, day, hour, minute) %>% 
+  mutate(departure = make_datetime(year, month, day, hour, minute))
+
+flights_dt %>% 
+  ggplot(aes(departure)) + 
+  geom_freqpoly(binwidth = 86400) 
+
+
+dates <-c("20170203","20160329","20161224")
+dates1 <- ymd(dates)
+ggplot(as.data.frame(dates1), aes(x=dates1)) + geom_histogram()
+```
+
+
